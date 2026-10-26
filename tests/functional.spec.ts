@@ -1,5 +1,4 @@
 
-
 import { test, expect } from '@playwright/test';
 import { Users, PaymentData } from './data';
 import { AccountPage } from './AccountPage';
@@ -13,6 +12,7 @@ test.describe('Caso de prueba 16 - Automation Exercise', () => {
 
     await test.step('Pasos 1 al 3: abrir y verificar la página de inicio', async () => {
       await page.goto('https://www.automationexercise.com/');
+
       await expect(page).toHaveTitle(/Automation Exercise/);
     });
 
@@ -28,7 +28,9 @@ test.describe('Caso de prueba 16 - Automation Exercise', () => {
     await test.step('Paso 7: agregar un producto al carrito', async () => {
       await page.locator('a[data-product-id="1"]').first().click();
 
-      await page.locator('#cartModal').waitFor({ state: 'visible' });
+      await page.locator('#cartModal').waitFor({
+        state: 'visible'
+      });
 
       await page.locator('#cartModal button.close-modal:visible').click();
 
@@ -47,7 +49,9 @@ test.describe('Caso de prueba 16 - Automation Exercise', () => {
       await expect(page.getByText(/Address Details/i)).toBeVisible();
       await expect(page.getByText(/Review Your Order/i)).toBeVisible();
 
-      await page.locator('textarea[name="message"]').fill('Pedido de prueba');
+      await page.locator('textarea[name="message"]').fill(
+        'Pedido de prueba'
+      );
     });
 
     await test.step('Paso 13: abrir el formulario de pago', async () => {
@@ -58,7 +62,7 @@ test.describe('Caso de prueba 16 - Automation Exercise', () => {
       ).toBeVisible();
     });
 
-    await test.step('Ingresar los datos de la tarjeta con CVV vacío', async () => {
+    await test.step('Paso 14: ingresar los datos de la tarjeta', async () => {
       await page.locator('[data-qa="name-on-card"]').fill(
         PaymentData.nameOnCard
       );
@@ -67,7 +71,9 @@ test.describe('Caso de prueba 16 - Automation Exercise', () => {
         PaymentData.cardNumber
       );
 
-      await page.locator('[data-qa="cvc"]').fill('');
+      await page.locator('[data-qa="cvc"]').fill(
+        PaymentData.cvc
+      );
 
       await page.locator('[data-qa="expiry-month"]').fill(
         PaymentData.expiryMonth
@@ -79,28 +85,28 @@ test.describe('Caso de prueba 16 - Automation Exercise', () => {
 
       await expect(
         page.locator('[data-qa="cvc"]')
-      ).toHaveValue('');
+      ).not.toHaveValue('');
     });
 
+    
+    await test.step('Paso 15: realizar el pago y verificar la confirmación', async () => {
+      await page.locator('[data-qa="pay-button"]').click();
 
-await test.step('Intentar pagar con CVV vacío', async () => {
-  const cvc = page.locator('[data-qa="cvc"]');
+      await expect(
+        page.getByText(
+          'Congratulations! Your order has been confirmed!'
+        )
+      ).toBeVisible();
+    });
 
-  await cvc.fill('');
+    await test.step('Paso 16: hacer clic en eliminar cuenta', async () => {
+      await page.getByRole('link', { name: 'Delete Account' }).click();
+    });
 
-  await expect(cvc).toHaveJSProperty('required', true);
-  await expect(cvc).toHaveJSProperty('validity.valid', false);
+    await test.step('Paso 17: verificar que la cuenta fue eliminada', async () => {
+      await expect(page.getByText(/ACCOUNT DELETED!/i)).toBeVisible();
 
-  await page.locator('[data-qa="pay-button"]').click();
-
-   await expect(page).not.toHaveURL(/payment_done/);
-   
-});
-
-
-   
-
-
-
+      await page.getByRole('link', { name: 'Continue' }).click();
+    });
   });
 });
