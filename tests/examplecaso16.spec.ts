@@ -78,13 +78,20 @@ import { AccountPage } from './AccountPage';
   await page.locator('[data-qa="pay-button"]').click();
 
   // Paso 15: Verificar la confirmación del pedido
-  //await expect(page.getByText('Congratulations! Your order has been confirmed!')).toBeVisible();
+  await expect(page.getByText('Congratulations! Your order has been confirmed!')).toBeVisible();
 
    
+  // Paso 16: Hacer clic en Delete Account
+  await page.getByRole('link', { name: 'Delete Account' }).click();
 
+  // Paso 17: Verificar que la cuenta fue eliminada
+  await expect(page.getByText(/ACCOUNT DELETED!/i)).toBeVisible();
 
-
+  // Hacer clic en Continue
+  await page.getByRole('link', { name: 'Continue' }).click();
 
 
 });
+
+
 
